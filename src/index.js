@@ -2,10 +2,16 @@
 
 const Tree = require( '1tree' )
 const T = require( 'mtype' )
+const paths = require( './paths' )
+
+const { pathFromNode, nodeFromPath } = paths
 
 const t = T()
 
 const valueTypes = [ 'string', 'number', 'boolean' ]
+
+const extendValue = ( node, value ) =>
+  node.value( Object.assign( {}, node.value(), value ) )
 
 const toNode = ( jsonObj, parent ) => {
   const create = parent ? parent.createNode : Tree.createRoot
@@ -19,24 +25,23 @@ const toNode = ( jsonObj, parent ) => {
   const node = create( value )
 
   if( nodeType === 'array' ){
-    jsonObj.forEach( el => {
-      node.append( toNode( el, node ) )
+    jsonObj.forEach( ( el, index ) => {
+      const arrayItemNode = toNode( el, node )
+
+      extendValue( arrayItemNode, { arrayIndex: index })
+
+      node.append( arrayItemNode )
     })
   } else if( nodeType === 'object' ){
     const propertyNames = Object.keys( jsonObj )
 
     propertyNames.forEach( name => {
-      const nodeValue = {
-        nodeType: 'nameValue',
-        nodeValue: name
-      }
-
-      const nameValueNode = node.createNode( nodeValue )
       const propertyValue = jsonObj[ name ]
-      const valueNode = toNode( propertyValue, nameValueNode )
+      const valueNode = toNode( propertyValue, node )
 
-      nameValueNode.append( valueNode )
-      node.append( nameValueNode )
+      extendValue( valueNode, { propertyName: name })
+
+      node.append( valueNode )
     })
   }
 
@@ -62,8 +67,8 @@ const toJson = tree => {
 
     tree.getChildren().forEach( nameValueNode => {
       const value = nameValueNode.value()
-      const propertyName = value.nodeValue
-      const propertyValue = toJson( nameValueNode.firstChild() )
+      const { propertyName } = value
+      const propertyValue = toJson( nameValueNode )
 
       obj[ propertyName ] = propertyValue
     })
@@ -74,4 +79,4 @@ const toJson = tree => {
   throw new Error( 'Unexpected node' )
 }
 
-module.exports = { toTree, toJson }
+module.exports = { toTree, toJson, pathFromNode, nodeFromPath }

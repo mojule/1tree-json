@@ -4,7 +4,7 @@ const assert = require( 'assert' )
 
 const testData = require( './fixtures/test.json' )
 
-const { toTree, toJson } = require( '../src' )
+const { toTree, toJson, pathFromNode, nodeFromPath } = require( '../src' )
 
 describe( '1tree/json converter', () => {
   testData.forEach( el => {
@@ -17,6 +17,27 @@ describe( '1tree/json converter', () => {
       const roundTrippedJsonStr = JSON.stringify( dataBackToJson )
 
       assert.equal( originalJsonStr, roundTrippedJsonStr )
+    })
+
+    it( 'can get paths and find paths for ' + originalJsonStr, () => {
+      const tree = toTree( el )
+      const nodePaths = []
+
+      tree.walk( n => {
+        const nodePath = pathFromNode( n )
+
+        if( nodePath ) nodePaths.push( nodePath )
+      })
+
+      const pathToNodeMap = nodePaths.reduce( ( map, nodePath ) => {
+        map[ nodePath ] = nodeFromPath( tree, nodePath )
+
+        return map
+      }, {} )
+
+      Object.keys( pathToNodeMap ).forEach( key => {
+        assert( pathToNodeMap[ key ] !== undefined )
+      })
     })
   })
 })

@@ -4,10 +4,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var Tree = require('1tree');
 var T = require('mtype');
+var paths = require('./paths');
+
+var pathFromNode = paths.pathFromNode,
+    nodeFromPath = paths.nodeFromPath;
+
 
 var t = T();
 
 var valueTypes = ['string', 'number', 'boolean'];
+
+var extendValue = function extendValue(node, value) {
+  return node.value(Object.assign({}, node.value(), value));
+};
 
 var toNode = function toNode(jsonObj, parent) {
   var create = parent ? parent.createNode : Tree.createRoot;
@@ -20,24 +29,23 @@ var toNode = function toNode(jsonObj, parent) {
   var node = create(value);
 
   if (nodeType === 'array') {
-    jsonObj.forEach(function (el) {
-      node.append(toNode(el, node));
+    jsonObj.forEach(function (el, index) {
+      var arrayItemNode = toNode(el, node);
+
+      extendValue(arrayItemNode, { arrayIndex: index });
+
+      node.append(arrayItemNode);
     });
   } else if (nodeType === 'object') {
     var propertyNames = Object.keys(jsonObj);
 
     propertyNames.forEach(function (name) {
-      var nodeValue = {
-        nodeType: 'nameValue',
-        nodeValue: name
-      };
-
-      var nameValueNode = node.createNode(nodeValue);
       var propertyValue = jsonObj[name];
-      var valueNode = toNode(propertyValue, nameValueNode);
+      var valueNode = toNode(propertyValue, node);
 
-      nameValueNode.append(valueNode);
-      node.append(nameValueNode);
+      extendValue(valueNode, { propertyName: name });
+
+      node.append(valueNode);
     });
   }
 
@@ -64,8 +72,9 @@ var toJson = function toJson(tree) {
 
       tree.getChildren().forEach(function (nameValueNode) {
         var value = nameValueNode.value();
-        var propertyName = value.nodeValue;
-        var propertyValue = toJson(nameValueNode.firstChild());
+        var propertyName = value.propertyName;
+
+        var propertyValue = toJson(nameValueNode);
 
         obj[propertyName] = propertyValue;
       });
@@ -81,4 +90,4 @@ var toJson = function toJson(tree) {
   throw new Error('Unexpected node');
 };
 
-module.exports = { toTree: toTree, toJson: toJson };
+module.exports = { toTree: toTree, toJson: toJson, pathFromNode: pathFromNode, nodeFromPath: nodeFromPath };
