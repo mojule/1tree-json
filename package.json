@@ -1,12 +1,15 @@
 {
   "name": "1tree-json",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Convert JSON objects to and from 1tree instances",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
-  "keywords": [ "1tree", "JSON" ],
+  "keywords": [
+    "1tree",
+    "JSON"
+  ],
   "author": "Nik Coughlin <nrkn.com@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -24,7 +27,7 @@
     "mocha": "^3.2.0"
   },
   "dependencies": {
-    "1tree": "^0.4.0",
+    "1tree": "^0.4.1",
     "mtype": "^0.1.2"
   }
 }
