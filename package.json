@@ -1,6 +1,6 @@
 {
   "name": "1tree-json",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Convert JSON objects to and from 1tree instances",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "mocha": "^3.2.0"
   },
   "dependencies": {
-    "1tree": "^0.4.4",
-    "mtype": "^0.1.2"
+    "1tree": "^0.4.6",
+    "mtype": "^0.1.3"
   }
 }
