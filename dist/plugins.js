@@ -19,6 +19,21 @@ var isEmptyPlugin = function isEmptyPlugin(fn) {
   return Object.assign(fn, { isEmpty: isEmpty });
 };
 
+var defaultPropertyName = 'New property ';
+
+var hasPropertyName = function hasPropertyName(fn, node, propertyName) {
+  var children = fn.getChildren(node);
+
+  var propertyNameAlreadyExists = children.some(function (siblingNode) {
+    var siblingValue = fn.value(siblingNode);
+    var siblingPropertyName = siblingValue.propertyName;
+
+    return siblingPropertyName === propertyName;
+  });
+
+  return propertyNameAlreadyExists;
+};
+
 var insertBeforePlugin = function insertBeforePlugin(fn) {
   var originalInsertBefore = fn.insertBefore;
 
@@ -30,19 +45,22 @@ var insertBeforePlugin = function insertBeforePlugin(fn) {
         var value = fn.value(childNode);
         var propertyName = value.propertyName;
 
+        var currentIndex = 0;
 
-        if (!t.is(propertyName, 'string') || propertyName.length === 0) throw new Error('When adding a child to an object, it must have a propertyName');
+        var addPropertyName = function addPropertyName() {
+          propertyName = defaultPropertyName + currentIndex;
 
-        var children = fn.getChildren(parentNode);
+          value.propertyName = propertyName;
+          fn.value(childNode, value);
 
-        var propertyNameAlreadyExists = children.some(function (siblingNode) {
-          var siblingValue = fn.value(siblingNode);
-          var siblingPropertyName = siblingValue.propertyName;
+          currentIndex++;
+        };
 
-          return siblingPropertyName === propertyName;
-        });
+        if (!t.is(propertyName, 'string') || propertyName.length === 0) addPropertyName();
 
-        if (propertyNameAlreadyExists) throw new Error('The property ' + propertyName + ' already exists');
+        while (hasPropertyName(fn, parentNode, propertyName)) {
+          addPropertyName();
+        }
       })();
     }
     return originalInsertBefore(fn, root, parentNode, childNode, referenceNode);

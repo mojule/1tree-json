@@ -17,6 +17,21 @@ const isEmptyPlugin = fn => {
   return Object.assign( fn, { isEmpty } )
 }
 
+const defaultPropertyName = 'New property '
+
+const hasPropertyName = ( fn, node, propertyName ) => {
+  const children = fn.getChildren( node )
+
+  const propertyNameAlreadyExists = children.some( siblingNode => {
+    const siblingValue = fn.value( siblingNode )
+    const siblingPropertyName = siblingValue.propertyName
+
+    return siblingPropertyName === propertyName
+  })
+
+  return propertyNameAlreadyExists
+}
+
 const insertBeforePlugin = fn => {
   const originalInsertBefore = fn.insertBefore
 
@@ -24,27 +39,24 @@ const insertBeforePlugin = fn => {
     const parentNodeType = fn.nodeType( fn, parentNode )
 
     if( parentNodeType === 'object' ){
-      const value = fn.value( childNode )
+      let value = fn.value( childNode )
       let { propertyName } = value
+      let currentIndex = 0
+
+      const addPropertyName = () => {
+        propertyName = defaultPropertyName + currentIndex
+
+        value.propertyName = propertyName
+        fn.value( childNode, value )
+
+        currentIndex++
+      }
 
       if( !t.is( propertyName, 'string' ) || propertyName.length === 0 )
-        throw new Error(
-          'When adding a child to an object, it must have a propertyName'
-        )
+        addPropertyName()
 
-      const children = fn.getChildren( parentNode )
-
-      const propertyNameAlreadyExists = children.some( siblingNode => {
-        const siblingValue = fn.value( siblingNode )
-        const siblingPropertyName = siblingValue.propertyName
-
-        return siblingPropertyName === propertyName
-      })
-
-      if( propertyNameAlreadyExists )
-        throw new Error(
-          `The property ${ propertyName } already exists`
-        )
+      while( hasPropertyName( fn, parentNode, propertyName ) )
+        addPropertyName()
     }
     return originalInsertBefore( fn, root, parentNode, childNode, referenceNode )
   }
