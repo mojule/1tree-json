@@ -1,18 +1,17 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-var Tree = require('1tree');
+var TreeFactory = require('1tree-factory');
 var T = require('mtype');
-var paths = require('./paths');
+var plugins = require('./plugins');
 
-var pathFromNode = paths.pathFromNode,
-    nodeFromPath = paths.nodeFromPath;
-
+var valueTypes = ['string', 'number', 'boolean'];
+var containerTypes = ['object', 'array'];
 
 var t = T();
 
-var valueTypes = ['string', 'number', 'boolean'];
+var Tree = TreeFactory.apply(undefined, _toConsumableArray(plugins));
 
 var extendValue = function extendValue(node, value) {
   return node.value(Object.assign({}, node.value(), value));
@@ -29,12 +28,8 @@ var toNode = function toNode(jsonObj, parent) {
   var node = create(value);
 
   if (nodeType === 'array') {
-    jsonObj.forEach(function (el, index) {
-      var arrayItemNode = toNode(el, node);
-
-      extendValue(arrayItemNode, { arrayIndex: index });
-
-      node.append(arrayItemNode);
+    jsonObj.forEach(function (el) {
+      node.append(toNode(el, node));
     });
   } else if (nodeType === 'object') {
     var propertyNames = Object.keys(jsonObj);
@@ -66,28 +61,18 @@ var toJson = function toJson(tree) {
 
   if (nodeType === 'array') return tree.getChildren().map(toJson);
 
-  if (nodeType === 'object') {
-    var _ret = function () {
-      var obj = {};
+  if (nodeType === 'object') return tree.getChildren().reduce(function (result, nameValueNode) {
+    var value = nameValueNode.value();
+    var propertyName = value.propertyName;
 
-      tree.getChildren().forEach(function (nameValueNode) {
-        var value = nameValueNode.value();
-        var propertyName = value.propertyName;
+    var propertyValue = toJson(nameValueNode);
 
-        var propertyValue = toJson(nameValueNode);
+    result[propertyName] = propertyValue;
 
-        obj[propertyName] = propertyValue;
-      });
-
-      return {
-        v: obj
-      };
-    }();
-
-    if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
-  }
+    return result;
+  }, {});
 
   throw new Error('Unexpected node');
 };
 
-module.exports = { toTree: toTree, toJson: toJson, pathFromNode: pathFromNode, nodeFromPath: nodeFromPath };
+module.exports = { toTree: toTree, toJson: toJson };

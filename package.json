@@ -27,7 +27,7 @@
     "mocha": "^3.2.0"
   },
   "dependencies": {
-    "1tree": "^0.4.9",
+    "1tree-factory": "^0.1.12",
     "mtype": "^0.1.3"
   }
 }

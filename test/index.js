@@ -21,22 +21,11 @@ describe( '1tree/json converter', () => {
 
     it( 'can get paths and find paths for ' + originalJsonStr, () => {
       const tree = toTree( el )
-      const nodePaths = []
-
       tree.walk( n => {
-        const nodePath = pathFromNode( n )
+        const nodePath = n.getPath()
+        const nodeFromPath = tree.atPath( nodePath )
 
-        if( nodePath ) nodePaths.push( nodePath )
-      })
-
-      const pathToNodeMap = nodePaths.reduce( ( map, nodePath ) => {
-        map[ nodePath ] = nodeFromPath( tree, nodePath )
-
-        return map
-      }, {} )
-
-      Object.keys( pathToNodeMap ).forEach( key => {
-        assert( pathToNodeMap[ key ] !== undefined )
+        assert.equal( n.get(), nodeFromPath.get() )
       })
     })
   })
