@@ -27,10 +27,12 @@ var insertBeforePlugin = function insertBeforePlugin(fn) {
           currentIndex++;
         };
 
-        if (!t.is(propertyName, 'string') || propertyName.length === 0) setPropertyName();
-
-        while (fn.hasProperty(fn, parentNode, propertyName)) {
+        if (!t.is(propertyName, 'string') || propertyName.length === 0) {
           setPropertyName();
+
+          while (fn.hasProperty(fn, parentNode, propertyName)) {
+            setPropertyName();
+          }
         }
       })();
     }

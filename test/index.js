@@ -54,6 +54,25 @@ describe( '1tree/json converter', () => {
         assert.equal( propertyNodeValue.nodeValue, 3 )
       })
 
+      it( 'setProperty replaces', () => {
+        const obj = {
+          a: 1,
+          b: 2
+        }
+
+        const node = Tree( obj )
+        const newPropertyNode = Tree( 3 )
+
+        node.setProperty( newPropertyNode, 'b' )
+
+        const propertyNode = node.getProperty( 'b' )
+        const propertyNodeValue = propertyNode.value()
+
+        assert( propertyNode )
+        assert.equal( propertyNodeValue.propertyName, 'b' )
+        assert.equal( propertyNodeValue.nodeValue, 3 )
+      })
+
       it( 'hasProperty', () => {
         const obj = {
           a: 1,
@@ -232,87 +251,21 @@ describe( '1tree/json converter', () => {
     })
   })
 
-  describe( 'handles property names', () => {
+  describe( 'handles missing property names', () => {
     it( 'adds property name', () => {
       const objNode = Tree({
         a: 1
       })
 
-      const numNode = Tree( 2 )
-
-      objNode.append( numNode )
-
-      const obj = objNode.toJson()
-
-      assert.deepEqual( obj, {
-        a: 1,
-        'New property 0': 2
-      })
-    })
-
-    it( 'adds property name when already taken', () => {
-      const objNode = Tree( {
-        a: 1
-      })
-
-      const numNode = Tree( 2 )
-
-      const value = numNode.value()
-      value.propertyName = 'a'
-      numNode.value( value )
-
-      objNode.append( numNode )
+      objNode.append( Tree( 2 ) )
+      objNode.append( Tree( 3 ) )
 
       const obj = objNode.toJson()
 
       assert.deepEqual( obj, {
-        a: 1,
-        'New property 0': 2
-      })
-
-      const numNode2 = Tree( 3 )
-
-      objNode.append( numNode2 )
-
-      const obj2 = objNode.toJson()
-
-      assert.deepEqual( obj2, {
         a: 1,
         'New property 0': 2,
         'New property 1': 3
-      })
-
-      const numNode3 = Tree( 4 )
-      const value3 = numNode3.value()
-      value3.propertyName = 'a'
-      numNode3.value( value3 )
-
-      objNode.append( numNode3 )
-
-      const obj3 = objNode.toJson()
-
-      assert.deepEqual( obj3, {
-        a: 1,
-        'New property 0': 2,
-        'New property 1': 3,
-        'New property 2': 4
-      })
-
-      const numNode4 = Tree( 5 )
-      const value4 = numNode4.value()
-      value4.propertyName = 'New property 2'
-      numNode4.value( value4 )
-
-      objNode.append( numNode4 )
-
-      const obj4 = objNode.toJson()
-
-      assert.deepEqual( obj4, {
-        a: 1,
-        'New property 0': 2,
-        'New property 1': 3,
-        'New property 2': 4,
-        'New property 3': 5
       })
     })
   })

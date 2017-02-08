@@ -4,6 +4,8 @@ const typenames = require( '../typenames' )
 
 const { valueTypes } = typenames
 
+const unnamedProperty = 'New property '
+
 const toJsonPlugin = fn => {
   const toJson = ( fn, node ) => {
     const nodeType = fn.nodeType( fn, node )
@@ -26,9 +28,17 @@ const toJsonPlugin = fn => {
     if( nodeType === 'object' ){
       const children = fn.getChildren( node )
 
+      let unnamedCount = 0
+
       return children.reduce( ( result, nameValueNode ) => {
         const value = fn.value( nameValueNode )
-        const { propertyName } = value
+        let { propertyName } = value
+
+        if( propertyName === undefined ){
+          propertyName = unnamedProperty + unnamedCount
+          unnamedCount++
+        }
+
         const propertyValue = toJson( fn, nameValueNode )
 
         result[ propertyName ] = propertyValue

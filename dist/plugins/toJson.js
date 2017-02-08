@@ -1,9 +1,13 @@
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var typenames = require('../typenames');
 
 var valueTypes = typenames.valueTypes;
 
+
+var unnamedProperty = 'New property ';
 
 var toJsonPlugin = function toJsonPlugin(fn) {
   var toJson = function toJson(fn, node) {
@@ -26,18 +30,32 @@ var toJsonPlugin = function toJsonPlugin(fn) {
     }
 
     if (nodeType === 'object') {
-      var _children = fn.getChildren(node);
+      var _ret = function () {
+        var children = fn.getChildren(node);
 
-      return _children.reduce(function (result, nameValueNode) {
-        var value = fn.value(nameValueNode);
-        var propertyName = value.propertyName;
+        var unnamedCount = 0;
 
-        var propertyValue = toJson(fn, nameValueNode);
+        return {
+          v: children.reduce(function (result, nameValueNode) {
+            var value = fn.value(nameValueNode);
+            var propertyName = value.propertyName;
 
-        result[propertyName] = propertyValue;
 
-        return result;
-      }, {});
+            if (propertyName === undefined) {
+              propertyName = unnamedProperty + unnamedCount;
+              unnamedCount++;
+            }
+
+            var propertyValue = toJson(fn, nameValueNode);
+
+            result[propertyName] = propertyValue;
+
+            return result;
+          }, {})
+        };
+      }();
+
+      if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
     }
 
     throw new Error('Unexpected node');
