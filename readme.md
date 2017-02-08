@@ -1,15 +1,15 @@
 # 1tree-json
 
-Converts JSON objects to and from 1tree instances
+Allows conversion between JSON objects and 1tree instances
 
 ```javascript
-const { toTree, toJson } = require( '1tree-json' )
+const JsonTree = require( '1tree-json' )
 
 const jsonData = require( './test-data.json' )
 
-const asTree = toTree( jsonData )
+const tree = JsonTree( jsonData )
 
-const numbers = asTree.findAll( node => node.value().nodeType === 'number' )
+const numbers = tree.findAll( node => node.isNumber() )
 
 numbers.forEach( numberNode => {
   const value = node.value()
@@ -19,7 +19,7 @@ numbers.forEach( numberNode => {
   node.value( value )
 })
 
-const newData = toJson( asTree )
+const newData = tree.toJson()
 
 console.log( JSON.stringify( newData, null, 2 ) )
 ```
