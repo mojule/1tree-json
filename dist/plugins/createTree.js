@@ -6,7 +6,7 @@ var isRawTree = function isRawTree(obj) {
   return obj !== null && obj !== undefined && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' && _typeof(obj.value) === 'object' && Array.isArray(obj.children);
 };
 
-var createTreeFromStr = function createTreeFromStr(fn) {
+var createTreePlugin = function createTreePlugin(fn) {
   var originalCreateTree = fn.createTree;
 
   var createTree = function createTree(rootValue) {
@@ -22,4 +22,4 @@ var createTreeFromStr = function createTreeFromStr(fn) {
   return Object.assign(fn, { createTree: createTree });
 };
 
-module.exports = createTreeFromStr;
+module.exports = createTreePlugin;

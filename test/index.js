@@ -2,7 +2,7 @@
 
 const assert = require( 'assert' )
 const testData = require( './fixtures/test.json' )
-const Tree = require( '../src' )
+const Tree = require( '../dist' )
 
 describe( '1tree/json converter', () => {
   describe( 'converts back and forth symmetrically', () => {
