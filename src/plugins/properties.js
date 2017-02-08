@@ -46,8 +46,7 @@ const propertiesPlugin = fn => {
 
     if( existing ){
       fn.insertBefore( fn, root, parentNode, childNode, existing )
-
-      existing.remove()
+      fn.remove( fn, root, existing )
 
       return childNode
     }
