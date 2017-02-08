@@ -7,7 +7,7 @@ const isRawTree = obj =>
   typeof obj.value === 'object' &&
   Array.isArray( obj.children )
 
-const createTreeFromStr = fn => {
+const createTreePlugin = fn => {
   const originalCreateTree = fn.createTree
 
   const createTree = ( rootValue, asRaw = false ) => {
@@ -22,4 +22,4 @@ const createTreeFromStr = fn => {
   return Object.assign( fn, { createTree } )
 }
 
-module.exports = createTreeFromStr
+module.exports = createTreePlugin
