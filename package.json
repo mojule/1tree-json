@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "1tree-factory": "^0.1.12",
-    "mojule-utils": "^0.1.3",
+    "mojule-utils": "^0.1.5",
     "mtype": "^0.1.3"
   }
 }
