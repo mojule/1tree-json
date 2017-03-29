@@ -12,11 +12,11 @@ const tree = JsonTree( jsonData )
 const numbers = tree.findAll( node => node.isNumber() )
 
 numbers.forEach( numberNode => {
-  const value = node.value()
+  const value = node.getValue( 'nodeValue' )
 
-  value.nodeValue *= 2
+  value *= 2
 
-  node.value( value )
+  node.setValue( 'nodeValue', value )
 })
 
 const newData = tree.toJson()
