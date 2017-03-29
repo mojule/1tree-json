@@ -1,6 +1,6 @@
 {
   "name": "@mojule/json-tree",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Convert JSON objects to and from 1tree instances",
   "main": "index.js",
   "scripts": {

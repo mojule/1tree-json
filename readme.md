@@ -178,7 +178,7 @@ const objNode = JsonTree( { foo: 'bar', abc: 'xyz' } )
 console.log( objNode.keys() )
 ```
 
-#### keys
+#### values
 
 Returns a list of all the object node's property values
 
