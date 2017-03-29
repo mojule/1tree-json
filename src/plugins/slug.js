@@ -1,28 +1,22 @@
 'use strict'
 
-const slugPlugin = fn => {
-  const originalSlug = fn.slug
+const slugPlugin = node => {
+  const { slug } = node
 
-  const slug = ( fn, root, node ) => {
-    if( root === node ) return ''
+  return {
+    slug: () => {
+      if( node === node.getRoot() ) return slug()
 
-    const parent = fn.getParent( fn, root, node )
-    const parentValue = fn.value( parent )
-    const { nodeType } = parentValue
+      const parent = node.getParent()
+      const nodeType = parent.nodeType()
 
-    if( nodeType === 'object' ){
-      const value = fn.value( node )
-      const { propertyName } = value
+      if( nodeType === 'object' ){
+        return node.getValue( 'propertyName' )
+      }
 
-      return propertyName
+      return slug()
     }
-
-    return String( fn.index( fn, root, node ) )
   }
-
-  slug.def = originalSlug.def
-
-  return Object.assign( fn, { slug } )
 }
 
 module.exports = slugPlugin

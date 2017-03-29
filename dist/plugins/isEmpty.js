@@ -5,16 +5,14 @@ var typenames = require('../typenames');
 var containerTypes = typenames.containerTypes;
 
 
-var isEmptyPlugin = function isEmptyPlugin(fn) {
-  var isEmpty = function isEmpty(fn, node) {
-    var nodeType = fn.nodeType(fn, node);
+var isEmptyPlugin = function isEmptyPlugin(node) {
+  var isEmpty = function isEmpty() {
+    var nodeType = node.nodeType();
 
     return !containerTypes.includes(nodeType);
   };
 
-  isEmpty.def = fn.isEmpty.def;
-
-  return Object.assign(fn, { isEmpty: isEmpty });
+  return { isEmpty: isEmpty };
 };
 
 module.exports = isEmptyPlugin;

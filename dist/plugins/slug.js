@@ -1,30 +1,23 @@
 'use strict';
 
-var slugPlugin = function slugPlugin(fn) {
-  var originalSlug = fn.slug;
-
-  var slug = function slug(fn, root, node) {
-    if (root === node) return '';
-
-    var parent = fn.getParent(fn, root, node);
-    var parentValue = fn.value(parent);
-    var nodeType = parentValue.nodeType;
+var slugPlugin = function slugPlugin(node) {
+  var _slug = node.slug;
 
 
-    if (nodeType === 'object') {
-      var value = fn.value(node);
-      var propertyName = value.propertyName;
+  return {
+    slug: function slug() {
+      if (node === node.getRoot()) return _slug();
 
+      var parent = node.getParent();
+      var nodeType = parent.nodeType();
 
-      return propertyName;
+      if (nodeType === 'object') {
+        return node.getValue('propertyName');
+      }
+
+      return _slug();
     }
-
-    return String(fn.index(fn, root, node));
   };
-
-  slug.def = originalSlug.def;
-
-  return Object.assign(fn, { slug: slug });
 };
 
 module.exports = slugPlugin;

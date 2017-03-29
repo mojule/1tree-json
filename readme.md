@@ -1,6 +1,6 @@
-# 1tree-json
+# json-tree
 
-Allows conversion between JSON objects and 1tree instances
+`tree` adapter over JSON-compatible objects
 
 ```javascript
 const JsonTree = require( '1tree-json' )

@@ -28,8 +28,8 @@
     "mocha": "^3.2.0"
   },
   "dependencies": {
-    "1tree-factory": "^0.1.15",
-    "mojule-utils": "^0.1.8",
-    "mtype": "^0.1.6"
+    "@mojule/is": "^0.1.0",
+    "@mojule/tree": "^0.5.2",
+    "@mojule/utils": "^0.1.9"
   }
 }

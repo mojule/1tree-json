@@ -1,171 +1,83 @@
 'use strict'
 
-//replace with fn.isObject, isString etc.
-const isObjectNode = ( fn, node ) => {
-  const nodeType = fn.nodeType( fn, node )
+const is = require( '@mojule/is' )
 
-  return nodeType === 'object'
-}
+const propertiesPlugin = node => {
+  // need to figure out a better way to do statics
+  if( !is.null( node.state.node ) && node.nodeType() !== 'object' )
+    return {}
 
-const enforceObject = ( fn, node, fname ) => {
-  if( !isObjectNode( fn, node ) )
-    throw new Error( `${ fname } can only be called on an object node` )
-}
+  const getProperty = propertyName => {
+    const children = node.getChildren()
 
-const propertiesPlugin = fn => {
-  const getProperty = ( fn, node, propertyName ) => {
-    enforceObject( fn, node, 'getProperty' )
-
-    const children = fn.getChildren( node )
-
-    const property = children.find( siblingNode => {
-      const siblingValue = fn.value( siblingNode )
-      const siblingPropertyName = siblingValue.propertyName
-
-      return siblingPropertyName === propertyName
-    })
-
-    return property
+    return children.find( child =>
+      child.getValue( 'propertyName' ) === propertyName
+    )
   }
 
-  getProperty.def = {
-    argTypes: [ 'fn', 'node', 'string' ],
-    returnType: 'node',
-    requires: [ 'getChildren', 'value' ],
-    categories: [ 'meta', 'plugin' ]
+  // add child and set its propertyName, or replace existing property
+  const setProperty = ( propertyName, child ) => {
+    if( !is.string( propertyName ) )
+      throw new Error(
+        'setProperty expects a propertyName string as first argument'
+      )
+
+    const existing = node.getProperty( propertyName )
+
+    if( existing )
+      existing.remove()
+
+    child.assign( { propertyName } )
+
+    return node.add( child )
   }
 
-  const setProperty = ( fn, root, parentNode, childNode, propertyName ) => {
-    enforceObject( fn, parentNode, 'setProperty' )
+  const hasProperty = propertyName => !!node.getProperty( propertyName )
 
-    const existing = fn.getProperty( fn, parentNode, propertyName )
+  const removeProperty = propertyName => {
+    const existing = node.getProperty( propertyName )
 
-    const childNodeValue = fn.value( childNode )
-    childNodeValue.propertyName = propertyName
-    fn.value( childNode, childNodeValue )
-
-    if( existing ){
-      fn.insertBefore( fn, root, parentNode, childNode, existing )
-      fn.remove( fn, root, existing )
-
-      return childNode
-    }
-
-    return fn.append( fn, root, parentNode, childNode )
-  }
-
-  setProperty.def = {
-    argTypes: [ 'fn', 'rootNode', 'node', 'node', 'string' ],
-    returnType: 'node',
-    requires: [ 'getProperty', 'value', 'insertBefore', 'append' ],
-    categories: [ 'meta', 'plugin' ]
-  }
-
-  const hasProperty = ( fn, node, propertyName ) => {
-    enforceObject( fn, node, 'hasProperty' )
-
-    const property = fn.getProperty( fn, node, propertyName )
-
-    return !!property
-  }
-
-  hasProperty.def = {
-    argTypes: [ 'fn', 'node', 'string' ],
-    returnType: 'boolean',
-    requires: [ 'getProperty' ],
-    categories: [ 'meta', 'plugin' ]
-  }
-
-  const removeProperty = ( fn, root, node, propertyName ) => {
-    enforceObject( fn, node, 'removeProperty' )
-
-    const property = fn.getProperty( fn, node, propertyName )
-
-    if( !property )
+    if( !existing )
       throw new Error(
         `Object node does not have a property "${ propertyName }"`
       )
 
-    return fn.remove( fn, root, property )
+    return existing.remove()
   }
 
-  removeProperty.def = {
-    argTypes: [ 'fn', 'rootNode', 'node', 'string' ],
-    returnType: 'node',
-    requires: [ 'getProperty', 'remove' ],
-    categories: [ 'meta', 'plugin' ]
-  }
+  const keys = () => {
+    const children = node.getChildren()
 
-  const keys = ( fn, node ) => {
-    enforceObject( fn, node, 'keys' )
-
-    const children = fn.getChildren( node )
-
-    const keys = children.map( childNode => {
-      const value = fn.value( childNode )
-
-      return value.propertyName
-    })
+    const keys = children.map( child => child.getValue( 'propertyName' ) )
 
     return keys
   }
 
-  keys.def = {
-    argTypes: [ 'fn', 'node' ],
-    returnType: '[string]',
-    requires: [ 'getChildren', 'value' ],
-    categories: [ 'meta', 'plugin' ]
-  }
+  const values = () => {
+    const children = node.getChildren()
 
-  const values = ( fn, node ) => {
-    enforceObject( fn, node, 'values' )
-
-    const children = fn.getChildren( node )
-
-    const values = children.map( childNode => {
-      const value = fn.value( childNode )
-
-      return value.nodeValue
-    })
+    const values = children.map( child => child.getValue( 'nodeValue' ) )
 
     return values
   }
 
-  values.def = {
-    argTypes: [ 'fn', 'node' ],
-    returnType: '[any]',
-    requires: [ 'getChildren', 'value' ],
-    categories: [ 'meta', 'plugin' ]
-  }
+  const renameProperty = ( existingPropertyName, propertyName ) => {
+    const existing = node.getProperty( existingPropertyName )
 
-  const renameProperty = ( fn, node, propertyName, newPropertyName ) => {
-    enforceObject( fn, node, 'renameProperty' )
-
-    const property = fn.getProperty( fn, node, propertyName )
-
-    if( !property )
+    if( !existing )
       throw new Error(
         `Object node does not have a property "${ propertyName }"`
       )
 
-    const propertyValue = fn.value( property )
-    propertyValue.propertyName = newPropertyName
-    fn.value( property, propertyValue )
+    existing.assign( { propertyName } )
 
-    return property
+    return existing
   }
 
-  renameProperty.def = {
-    argTypes: [ 'fn', 'node', 'string', 'string' ],
-    returnType: 'node',
-    requires: [ 'getProperty', 'value' ],
-    categories: [ 'meta', 'plugin' ]
-  }
-
-  return Object.assign( fn, {
+  return {
     getProperty, setProperty, hasProperty, removeProperty, keys, values,
     renameProperty
-  })
+  }
 }
 
 module.exports = propertiesPlugin

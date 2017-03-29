@@ -1,47 +1,44 @@
 'use strict'
 
+const is = require( '@mojule/is' )
+
 const typenames = require( '../typenames' )
 
 const { valueTypes } = typenames
 
 const unnamedProperty = 'New property '
 
-const toJsonPlugin = fn => {
-  const toJson = ( fn, node ) => {
-    const nodeType = fn.nodeType( fn, node )
+const toJsonPlugin = node => {
+  const toJson = () => {
+    const nodeType = node.nodeType()
 
     if( nodeType === 'null' )
       return null
 
     if( valueTypes.includes( nodeType ) ){
-      const value = fn.value( node )
-
-      return value.nodeValue
+      return node.getValue( 'nodeValue' )
     }
 
     if( nodeType === 'array' ){
-      const children = fn.getChildren( node )
+      const children = node.getChildren()
 
-      return children.map( childNode => toJson( fn, childNode ) )
+      return children.map( childNode => childNode.toJson() )
     }
 
     if( nodeType === 'object' ){
-      const children = fn.getChildren( node )
+      const children = node.getChildren()
 
       let unnamedCount = 0
 
-      return children.reduce( ( result, nameValueNode ) => {
-        const value = fn.value( nameValueNode )
-        let { propertyName } = value
+      return children.reduce( ( result, property ) => {
+        let propertyName = property.getValue( 'propertyName' )
 
-        if( propertyName === undefined ){
+        if( !is.string( propertyName ) ){
           propertyName = unnamedProperty + unnamedCount
           unnamedCount++
         }
 
-        const propertyValue = toJson( fn, nameValueNode )
-
-        result[ propertyName ] = propertyValue
+        result[ propertyName ] = property.toJson()
 
         return result
       }, {})
@@ -50,14 +47,7 @@ const toJsonPlugin = fn => {
     throw new Error( 'Unexpected node' )
   }
 
-  toJson.def = {
-    argTypes: [ 'fn', 'node' ],
-    returnType: 'any',
-    requires: [ 'nodeType', 'value', 'getChildren' ],
-    categories: [ 'meta', 'plugin' ]
-  }
-
-  return Object.assign( fn, { toJson } )
+  return { toJson }
 }
 
 module.exports = toJsonPlugin

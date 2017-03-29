@@ -1,57 +1,50 @@
 'use strict'
 
-const T = require( 'mtype' )
+const is = require( '@mojule/is' )
 const typenames = require( '../typenames' )
-const extendValue = require( '../extendValue' )
 
 const { valueTypes } = typenames
 
-const t = T()
+const fromJsonPlugin = node => {
+  const Node = rawNode => node({
+    root: rawNode,
+    node: rawNode,
+    parent: null
+  })
 
-const fromJsonPlugin = fn => {
-  const fromJson = ( fn, jsonObj ) => {
-    const nodeType = t.of( jsonObj )
+  const fromJson = obj => {
+    const nodeType = is.of( obj )
     const value = { nodeType }
 
     if( valueTypes.includes( nodeType ) )
-      value.nodeValue = jsonObj
+      value.nodeValue = obj
 
-    const node = fn.createNode( value )
+    const raw = node.createNode( value )
+    const jsonNode = Node( raw )
 
     if( nodeType === 'array' ){
-      jsonObj.forEach( ( el ) => {
-        const childNode = fromJson( fn, el )
+      obj.forEach( item => {
+        const childNode = fromJson( item )
 
-        /*
-          unsafe child append - but it's OK because this tree type is standard
-          value: object, children: array
-        */
-        node.children.push( childNode )
+        jsonNode.add( childNode )
       })
     } else if( nodeType === 'object' ){
-      const propertyNames = Object.keys( jsonObj )
+      const propertyNames = Object.keys( obj )
 
-      propertyNames.forEach( name => {
-        const propertyValue = jsonObj[ name ]
-        const valueNode = fromJson( fn, propertyValue )
+      propertyNames.forEach( propertyName => {
+        const propertyValue = obj[ propertyName ]
+        const childNode = fromJson( propertyValue )
 
-        extendValue( fn, valueNode, { propertyName: name } )
+        childNode.assign( { propertyName } )
 
-        node.children.push( valueNode )
+        jsonNode.add( childNode )
       })
     }
 
-    return node
+    return jsonNode
   }
 
-  fromJson.def = {
-    argTypes: [ 'fn', 'any' ],
-    returnType: 'node',
-    requires: [ 'createNode' ],
-    categories: [ 'meta', 'plugin' ]
-  }
-
-  Object.assign( fn, { fromJson } )
+  return { fromJson }
 }
 
 module.exports = fromJsonPlugin

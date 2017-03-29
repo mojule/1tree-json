@@ -1,6 +1,6 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var is = require('@mojule/is');
 
 var typenames = require('../typenames');
 
@@ -9,66 +9,47 @@ var valueTypes = typenames.valueTypes;
 
 var unnamedProperty = 'New property ';
 
-var toJsonPlugin = function toJsonPlugin(fn) {
-  var toJson = function toJson(fn, node) {
-    var nodeType = fn.nodeType(fn, node);
+var toJsonPlugin = function toJsonPlugin(node) {
+  var toJson = function toJson() {
+    var nodeType = node.nodeType();
 
     if (nodeType === 'null') return null;
 
     if (valueTypes.includes(nodeType)) {
-      var value = fn.value(node);
-
-      return value.nodeValue;
+      return node.getValue('nodeValue');
     }
 
     if (nodeType === 'array') {
-      var children = fn.getChildren(node);
+      var children = node.getChildren();
 
       return children.map(function (childNode) {
-        return toJson(fn, childNode);
+        return childNode.toJson();
       });
     }
 
     if (nodeType === 'object') {
-      var _ret = function () {
-        var children = fn.getChildren(node);
+      var _children = node.getChildren();
 
-        var unnamedCount = 0;
+      var unnamedCount = 0;
 
-        return {
-          v: children.reduce(function (result, nameValueNode) {
-            var value = fn.value(nameValueNode);
-            var propertyName = value.propertyName;
+      return _children.reduce(function (result, property) {
+        var propertyName = property.getValue('propertyName');
 
+        if (!is.string(propertyName)) {
+          propertyName = unnamedProperty + unnamedCount;
+          unnamedCount++;
+        }
 
-            if (propertyName === undefined) {
-              propertyName = unnamedProperty + unnamedCount;
-              unnamedCount++;
-            }
+        result[propertyName] = property.toJson();
 
-            var propertyValue = toJson(fn, nameValueNode);
-
-            result[propertyName] = propertyValue;
-
-            return result;
-          }, {})
-        };
-      }();
-
-      if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+        return result;
+      }, {});
     }
 
     throw new Error('Unexpected node');
   };
 
-  toJson.def = {
-    argTypes: ['fn', 'node'],
-    returnType: 'any',
-    requires: ['nodeType', 'value', 'getChildren'],
-    categories: ['meta', 'plugin']
-  };
-
-  return Object.assign(fn, { toJson: toJson });
+  return { toJson: toJson };
 };
 
 module.exports = toJsonPlugin;

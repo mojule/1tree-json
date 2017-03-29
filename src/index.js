@@ -1,12 +1,22 @@
 'use strict'
 
-const TreeFactory = require( '1tree-factory' )
+const is = require( '@mojule/is' )
+const TreeFactory = require( '@mojule/tree' ).Factory
 const plugins = require( './plugins' )
-const createTreePlugin = require( './plugins/createTree' )
 
-const JsonTree = TreeFactory( ...plugins )
+const Tree = TreeFactory( plugins )
 
-// added afterwards to ensure createTree plugin already exists, as it wraps it
-JsonTree.plugin( createTreePlugin )
+const isValue = value => is.object( value ) && is.string( value.nodeType )
+
+const JsonTree = value => {
+  if( is.undefined( value ) )
+    throw new Error( 'JsonTree requires a raw node, value, or valid JSON object' )
+
+  if( isValue( value ) || Tree.isNode( value ) )
+    return Tree( value )
+
+  // need better handling for statics!
+  return Tree({}).fromJson( value )
+}
 
 module.exports = JsonTree

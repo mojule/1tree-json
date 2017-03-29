@@ -1,30 +1,19 @@
 'use strict'
 
-const utils = require( 'mojule-utils' )
+const utils = require( '@mojule/utils' )
 const typenames = require( '../typenames' )
 
 const { allTypes } = typenames
 const { capitalizeFirstLetter } = utils
 
-const typesPlugin = fn => {
-  allTypes.forEach( typename => {
+const typesPlugin = node => {
+  return allTypes.reduce( ( types, typename ) => {
     const fname = 'is' + capitalizeFirstLetter( typename )
 
-    fn[ fname ] = ( fn, node ) => {
-      const nodeType = fn.nodeType( fn, node )
+    types[ fname ] = () => node.nodeType() === typename
 
-      return nodeType === typename
-    }
-
-    fn[ fname ].def = {
-      argTypes: [ 'fn', 'node' ],
-      returnType: 'boolean',
-      requires: [ 'nodeType' ],
-      categories: [ 'meta', 'plugin' ]
-    }
-  })
-
-  return fn
+    return types
+  }, {} )
 }
 
 module.exports = typesPlugin

@@ -4,16 +4,14 @@ const typenames = require( '../typenames' )
 
 const { containerTypes } = typenames
 
-const isEmptyPlugin = fn => {
-  const isEmpty = ( fn, node ) => {
-    const nodeType = fn.nodeType( fn, node )
+const isEmptyPlugin = node => {
+  const isEmpty = () => {
+    const nodeType = node.nodeType()
 
     return !containerTypes.includes( nodeType )
   }
 
-  isEmpty.def = fn.isEmpty.def
-
-  return Object.assign( fn, { isEmpty } )
+  return { isEmpty }
 }
 
 module.exports = isEmptyPlugin

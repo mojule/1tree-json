@@ -1,57 +1,52 @@
 'use strict';
 
-var T = require('mtype');
+var is = require('@mojule/is');
 var typenames = require('../typenames');
-var extendValue = require('../extendValue');
 
 var valueTypes = typenames.valueTypes;
 
 
-var t = T();
+var fromJsonPlugin = function fromJsonPlugin(node) {
+  var Node = function Node(rawNode) {
+    return node({
+      root: rawNode,
+      node: rawNode,
+      parent: null
+    });
+  };
 
-var fromJsonPlugin = function fromJsonPlugin(fn) {
-  var fromJson = function fromJson(fn, jsonObj) {
-    var nodeType = t.of(jsonObj);
+  var fromJson = function fromJson(obj) {
+    var nodeType = is.of(obj);
     var value = { nodeType: nodeType };
 
-    if (valueTypes.includes(nodeType)) value.nodeValue = jsonObj;
+    if (valueTypes.includes(nodeType)) value.nodeValue = obj;
 
-    var node = fn.createNode(value);
+    var raw = node.createNode(value);
+    var jsonNode = Node(raw);
 
     if (nodeType === 'array') {
-      jsonObj.forEach(function (el) {
-        var childNode = fromJson(fn, el);
+      obj.forEach(function (item) {
+        var childNode = fromJson(item);
 
-        /*
-          unsafe child append - but it's OK because this tree type is standard
-          value: object, children: array
-        */
-        node.children.push(childNode);
+        jsonNode.add(childNode);
       });
     } else if (nodeType === 'object') {
-      var propertyNames = Object.keys(jsonObj);
+      var propertyNames = Object.keys(obj);
 
-      propertyNames.forEach(function (name) {
-        var propertyValue = jsonObj[name];
-        var valueNode = fromJson(fn, propertyValue);
+      propertyNames.forEach(function (propertyName) {
+        var propertyValue = obj[propertyName];
+        var childNode = fromJson(propertyValue);
 
-        extendValue(fn, valueNode, { propertyName: name });
+        childNode.assign({ propertyName: propertyName });
 
-        node.children.push(valueNode);
+        jsonNode.add(childNode);
       });
     }
 
-    return node;
+    return jsonNode;
   };
 
-  fromJson.def = {
-    argTypes: ['fn', 'any'],
-    returnType: 'node',
-    requires: ['createNode'],
-    categories: ['meta', 'plugin']
-  };
-
-  Object.assign(fn, { fromJson: fromJson });
+  return { fromJson: fromJson };
 };
 
 module.exports = fromJsonPlugin;
