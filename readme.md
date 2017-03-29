@@ -3,7 +3,7 @@
 `tree` adapter over JSON-compatible objects
 
 ```javascript
-const JsonTree = require( '1tree-json' )
+const JsonTree = require( '@mojule/json-tree' )
 
 const jsonData = require( './test-data.json' )
 
