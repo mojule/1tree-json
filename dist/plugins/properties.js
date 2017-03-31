@@ -2,9 +2,9 @@
 
 var is = require('@mojule/is');
 
-var propertiesPlugin = function propertiesPlugin(node) {
-  // need to figure out a better way to do statics
-  if (!is.null(node.state.node) && node.nodeType() !== 'object') return {};
+var propertiesPlugin = function propertiesPlugin(node, state) {
+  // being called in static context, or not an object node
+  if (is.undefined(state) || node.nodeType() !== 'object') return {};
 
   var getProperty = function getProperty(propertyName) {
     var children = node.getChildren();

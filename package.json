@@ -1,7 +1,7 @@
 {
   "name": "@mojule/json-tree",
-  "version": "0.3.1",
-  "description": "Convert JSON objects to and from 1tree instances",
+  "version": "0.3.2",
+  "description": "Tree API over JSON-compatible objects",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@mojule/is": "^0.1.0",
-    "@mojule/tree": "^0.5.2",
+    "@mojule/tree": "^0.5.4",
     "@mojule/utils": "^0.1.9"
   }
 }

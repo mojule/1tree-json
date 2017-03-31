@@ -1,5 +1,6 @@
 'use strict'
 
+const isValue = require( './isValue' )
 const fromJson = require( './fromJson' )
 const toJson = require( './toJson' )
 const properties = require( './properties' )
@@ -8,5 +9,5 @@ const slug = require( './slug' )
 const types = require( './types' )
 
 module.exports = [
-  fromJson, toJson, properties, isEmpty, slug, types
+  isValue, fromJson, toJson, properties, isEmpty, slug, types
 ]

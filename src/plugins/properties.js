@@ -2,9 +2,9 @@
 
 const is = require( '@mojule/is' )
 
-const propertiesPlugin = node => {
-  // need to figure out a better way to do statics
-  if( !is.null( node.state.node ) && node.nodeType() !== 'object' )
+const propertiesPlugin = ( node, state ) => {
+  // being called in static context, or not an object node
+  if( is.undefined( state ) || node.nodeType() !== 'object' )
     return {}
 
   const getProperty = propertyName => {

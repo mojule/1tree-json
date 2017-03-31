@@ -19,6 +19,29 @@ describe( 'tree/json converter', () => {
     })
   })
 
+  describe( 'Factory', () => {
+    it( 'takes a raw node value', () => {
+      const value = {
+        nodeType: 'string',
+        nodeValue: 'Hello'
+      }
+
+      const tree = JsonTree( value )
+
+      assert.equal( tree.toJson(), 'Hello' )
+    })
+
+    it( 'takes a raw node', () => {
+      const raw = JsonTree( { foo: 'bar' } ).get()
+
+      const tree = JsonTree( raw )
+
+      const json = tree.toJson()
+
+      assert.deepEqual( { foo: 'bar' }, json )
+    })
+  })
+
   describe( 'plugins', () => {
     describe( 'properties', () => {
       it( 'getProperty', () => {

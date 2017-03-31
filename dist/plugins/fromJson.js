@@ -15,7 +15,7 @@ var fromJsonPlugin = function fromJsonPlugin(node) {
     });
   };
 
-  var fromJson = function fromJson(obj) {
+  var $fromJson = function $fromJson(obj) {
     var nodeType = is.of(obj);
     var value = { nodeType: nodeType };
 
@@ -26,7 +26,7 @@ var fromJsonPlugin = function fromJsonPlugin(node) {
 
     if (nodeType === 'array') {
       obj.forEach(function (item) {
-        var childNode = fromJson(item);
+        var childNode = node.fromJson(item);
 
         jsonNode.add(childNode);
       });
@@ -35,7 +35,7 @@ var fromJsonPlugin = function fromJsonPlugin(node) {
 
       propertyNames.forEach(function (propertyName) {
         var propertyValue = obj[propertyName];
-        var childNode = fromJson(propertyValue);
+        var childNode = node.fromJson(propertyValue);
 
         childNode.assign({ propertyName: propertyName });
 
@@ -46,7 +46,7 @@ var fromJsonPlugin = function fromJsonPlugin(node) {
     return jsonNode;
   };
 
-  return { fromJson: fromJson };
+  return { $fromJson: $fromJson };
 };
 
 module.exports = fromJsonPlugin;

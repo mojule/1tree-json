@@ -12,7 +12,7 @@ const fromJsonPlugin = node => {
     parent: null
   })
 
-  const fromJson = obj => {
+  const $fromJson = obj => {
     const nodeType = is.of( obj )
     const value = { nodeType }
 
@@ -24,7 +24,7 @@ const fromJsonPlugin = node => {
 
     if( nodeType === 'array' ){
       obj.forEach( item => {
-        const childNode = fromJson( item )
+        const childNode = node.fromJson( item )
 
         jsonNode.add( childNode )
       })
@@ -33,7 +33,7 @@ const fromJsonPlugin = node => {
 
       propertyNames.forEach( propertyName => {
         const propertyValue = obj[ propertyName ]
-        const childNode = fromJson( propertyValue )
+        const childNode = node.fromJson( propertyValue )
 
         childNode.assign( { propertyName } )
 
@@ -44,7 +44,7 @@ const fromJsonPlugin = node => {
     return jsonNode
   }
 
-  return { fromJson }
+  return { $fromJson }
 }
 
 module.exports = fromJsonPlugin
