@@ -1,6 +1,6 @@
 {
   "name": "@mojule/json-tree",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Tree API over JSON-compatible objects",
   "main": "index.js",
   "scripts": {
@@ -30,8 +30,8 @@
     "istanbul": "^0.4.5"
   },
   "dependencies": {
-    "@mojule/is": "^0.1.0",
-    "@mojule/tree": "^0.5.6",
-    "@mojule/utils": "^0.1.9"
+    "@mojule/is": "^0.1.1",
+    "@mojule/tree": "^0.5.8",
+    "@mojule/utils": "^0.1.10"
   }
 }
