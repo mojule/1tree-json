@@ -2,20 +2,44 @@
 
 const is = require( '@mojule/is' )
 const TreeFactory = require( '@mojule/tree' ).Factory
-const plugins = require( './plugins' )
+const defaultPlugins = require( './plugins' )
 
-const Tree = TreeFactory( plugins )
+const parseState = ( Tree, value ) => {
+  if( Tree.isValue( value ) || Tree.isNode( value ) || Tree.isState( value ) )
+    return
 
-const JsonTree = value => {
-  if( is.undefined( value ) )
-    throw new Error( 'JsonTree requires a raw node, value, or valid JSON object' )
+  if( !is.undefined( value ) ){
+    const node = Tree.fromJson( value )
+    const rawNode = node.get()
 
-  if( Tree.isValue( value ) || Tree.isNode( value ) )
-    return Tree( value )
-
-  return Tree.fromJson( value )
+    return { node: rawNode, parent: null, root: rawNode }
+  }
 }
 
-Object.assign( JsonTree, Tree )
+const defaultStateParsers = [ parseState ]
+
+const Factory = ( ...plugins ) => {
+  let options = {}
+
+  if( plugins.length > 0 && is.object( plugins[ plugins.length - 1 ] ) )
+    options = plugins.pop()
+
+  if( plugins.length === 1 && is.array( plugins[ 0 ] ) )
+    plugins = plugins[ 0 ]
+
+  plugins = defaultPlugins.concat( plugins )
+
+  if( is.array( options.stateParsers ) ){
+    options.stateParsers = options.stateParsers.concat( defaultStateParsers )
+  } else {
+    options.stateParsers = defaultStateParsers
+  }
+
+  return TreeFactory( plugins, options )
+}
+
+const JsonTree = Factory()
+
+Object.assign( JsonTree, { Factory } )
 
 module.exports = JsonTree

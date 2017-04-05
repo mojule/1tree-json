@@ -1,8 +1,9 @@
 'use strict'
 
 const assert = require( 'assert' )
+const is = require( '@mojule/is' )
 const testData = require( './fixtures/test.json' )
-const JsonTree = require( '../dist' )
+const JsonTree = require( '../src' )
 
 describe( 'tree/json converter', () => {
   describe( 'converts back and forth symmetrically', () => {
@@ -19,7 +20,28 @@ describe( 'tree/json converter', () => {
     })
   })
 
-  describe( 'Factory', () => {
+  describe( 'Bad data', () => {
+    it( 'Bad nodeType', () => {
+      const badNode = JsonTree( { nodeType: 'nope' } )
+
+      assert.throws( () => badNode.toJson() )
+    })
+
+    it( 'Bad properties', () => {
+      const objNode = JsonTree( { a: 'a', b: 'b' } )
+
+      assert.throws( () => objNode.setProperty() )
+      assert.throws( () => objNode.setProperty( 4 ) )
+      assert.throws( () => objNode.removeProperty( 'c' ) )
+      assert.throws( () => objNode.renameProperty( 'c', 'b' ) )
+    })
+
+    it( 'No value', () => {
+      assert.throws( () => JsonTree() )
+    })
+  })
+
+  describe( 'State handlers', () => {
     it( 'takes a raw node value', () => {
       const value = {
         nodeType: 'string',
@@ -39,6 +61,47 @@ describe( 'tree/json converter', () => {
       const json = tree.toJson()
 
       assert.deepEqual( { foo: 'bar' }, json )
+    })
+  })
+
+  describe( 'Factory', () => {
+    const Factory = JsonTree.Factory
+
+    it( 'Can override options', () => {
+      const Tree = Factory( { exposeState: true } )
+
+      const tree = Tree( { a: 'a' } )
+
+      assert( is.object( tree.state ) )
+    })
+
+    it( 'Takes plugins as an array', () => {
+      const plugin = () => ({
+        x: () => 'x'
+      })
+
+      const Tree = Factory( [ plugin ] )
+
+      const tree = Tree( { a: 'a' } )
+
+      assert.equal( tree.x(), 'x' )
+    })
+
+    it( 'Takes stateParsers', () => {
+      const parser = ( Tree, value ) => {
+        if( is.undefined( value ) ){
+          const node = Tree.fromJson( null )
+          const rawNode = node.get()
+
+          return { node: rawNode, parent: null, root: rawNode }
+        }
+      }
+
+      const Tree = Factory( { stateParsers: [ parser ] } )
+
+      const tree = Tree()
+
+      assert.equal( tree.getValue( 'nodeType' ), 'null' )
     })
   })
 
