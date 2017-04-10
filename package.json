@@ -1,6 +1,6 @@
 {
   "name": "@mojule/json-tree",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Tree API over JSON-compatible objects",
   "main": "index.js",
   "scripts": {
