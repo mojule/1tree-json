@@ -87,17 +87,25 @@ describe( 'tree/json converter', () => {
       assert.equal( tree.x(), 'x' )
     })
 
-    it( 'Takes stateParsers', () => {
-      const parser = ( Tree, value ) => {
-        if( is.undefined( value ) ){
-          const node = Tree.fromJson( null )
-          const rawNode = node.get()
+    it( 'createState', () => {
+      const createStatePlugin = api => {
+        const { createState } = api
 
-          return { node: rawNode, parent: null, root: rawNode }
+        return {
+          $createState: value => {
+            if( is.undefined( value ) ){
+              const node = Tree.fromJson( null )
+              const rawNode = node.get()
+
+              return { node: rawNode, parent: null, root: rawNode }
+            }
+
+            return createState( value )
+          }
         }
       }
 
-      const Tree = Factory( { stateParsers: [ parser ] } )
+      const Tree = Factory( createStatePlugin )
 
       const tree = Tree()
 
