@@ -21,7 +21,7 @@ var fromJsonPlugin = function fromJsonPlugin(node) {
 
     if (valueTypes.includes(nodeType)) value.nodeValue = obj;
 
-    var raw = node.createNode(value);
+    var raw = node.createRawNode(value);
     var jsonNode = Node(raw);
 
     if (nodeType === 'array') {

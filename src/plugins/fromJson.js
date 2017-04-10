@@ -19,7 +19,7 @@ const fromJsonPlugin = node => {
     if( valueTypes.includes( nodeType ) )
       value.nodeValue = obj
 
-    const raw = node.createNode( value )
+    const raw = node.createRawNode( value )
     const jsonNode = Node( raw )
 
     if( nodeType === 'array' ){
