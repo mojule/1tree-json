@@ -1,14 +1,20 @@
 'use strict'
 
-const createState = require( './create-state' )
-const isValue = require( './isValue' )
-const fromJson = require( './fromJson' )
-const toJson = require( './toJson' )
-const properties = require( './properties' )
-const isEmpty = require( './isEmpty' )
-const slug = require( './slug' )
-const types = require( './types' )
+const core = require( './core' )
 
-module.exports = [
-  createState, isValue, fromJson, toJson, properties, isEmpty, slug, types
-]
+const fromJson = require( './statics/fromJson' )
+
+const properties = require( './api/object/properties' )
+const is = require( './api/is' )
+const nodeValue = require( './api/nodeValue' )
+const slug = require( './api/slug' )
+const toJson = require( './api/toJson' )
+
+const nodeType = require( './privates/nodeType' )
+
+module.exports = {
+  core,
+  statics: [ fromJson ],
+  api: [ properties, is, nodeValue, slug, toJson ],
+  privates: [ nodeType ]
+}

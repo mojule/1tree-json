@@ -3,7 +3,7 @@
 const assert = require( 'assert' )
 const is = require( '@mojule/is' )
 const testData = require( './fixtures/test.json' )
-const JsonTree = require( '../src' )
+const Json = require( '../src' )
 
 describe( 'tree/json converter', () => {
   describe( 'converts back and forth symmetrically', () => {
@@ -11,7 +11,7 @@ describe( 'tree/json converter', () => {
       const originalJsonStr = JSON.stringify( el )
 
       it( 'is symmetrical for ' + originalJsonStr, () => {
-        const dataTree = JsonTree( el )
+        const dataTree = Json( el )
         const dataBackToJson = dataTree.toJson()
         const roundTrippedJsonStr = JSON.stringify( dataBackToJson )
 
@@ -22,13 +22,13 @@ describe( 'tree/json converter', () => {
 
   describe( 'Bad data', () => {
     it( 'Bad nodeType', () => {
-      const badNode = JsonTree( { nodeType: 'nope' } )
-
-      assert.throws( () => badNode.toJson() )
+      assert.throws( () =>
+        Json( { nodeType: 'nope' } )
+      )
     })
 
     it( 'Bad properties', () => {
-      const objNode = JsonTree( { a: 'a', b: 'b' } )
+      const objNode = Json( { a: 'a', b: 'b' } )
 
       assert.throws( () => objNode.setProperty() )
       assert.throws( () => objNode.setProperty( 4 ) )
@@ -37,7 +37,7 @@ describe( 'tree/json converter', () => {
     })
 
     it( 'No value', () => {
-      assert.throws( () => JsonTree() )
+      assert.throws( () => Json() )
     })
   })
 
@@ -48,68 +48,9 @@ describe( 'tree/json converter', () => {
         nodeValue: 'Hello'
       }
 
-      const tree = JsonTree( value )
+      const tree = Json( value )
 
       assert.equal( tree.toJson(), 'Hello' )
-    })
-
-    it( 'takes a raw node', () => {
-      const raw = JsonTree( { foo: 'bar' } ).get()
-
-      const tree = JsonTree( raw )
-
-      const json = tree.toJson()
-
-      assert.deepEqual( { foo: 'bar' }, json )
-    })
-  })
-
-  describe( 'Factory', () => {
-    const Factory = JsonTree.Factory
-
-    it( 'Can override options', () => {
-      const Tree = Factory( { exposeState: true } )
-
-      const tree = Tree( { a: 'a' } )
-
-      assert( is.object( tree.state ) )
-    })
-
-    it( 'Takes plugins as an array', () => {
-      const plugin = () => ({
-        x: () => 'x'
-      })
-
-      const Tree = Factory( [ plugin ] )
-
-      const tree = Tree( { a: 'a' } )
-
-      assert.equal( tree.x(), 'x' )
-    })
-
-    it( 'createState', () => {
-      const createStatePlugin = api => {
-        const { createState } = api
-
-        return {
-          $createState: value => {
-            if( is.undefined( value ) ){
-              const node = Tree.fromJson( null )
-              const rawNode = node.get()
-
-              return { node: rawNode, parent: null, root: rawNode }
-            }
-
-            return createState( value )
-          }
-        }
-      }
-
-      const Tree = Factory( createStatePlugin )
-
-      const tree = Tree()
-
-      assert.equal( tree.getValue( 'nodeType' ), 'null' )
     })
   })
 
@@ -121,12 +62,12 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
         const propertyNode = node.getProperty( 'a' )
-        const propertyNodeValue = propertyNode.value()
+        const { propertyName } = propertyNode.value
 
         assert( propertyNode )
-        assert.equal( propertyNodeValue.propertyName, 'a' )
+        assert.equal( propertyName, 'a' )
       })
 
       it( 'setProperty', () => {
@@ -135,17 +76,17 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
-        const newPropertyNode = JsonTree( 3 )
+        const node = Json( obj )
+        const newPropertyNode = Json( 3 )
 
         node.setProperty( 'c', newPropertyNode )
 
         const propertyNode = node.getProperty( 'c' )
-        const propertyNodeValue = propertyNode.value()
+        const { propertyName } = propertyNode.value
 
         assert( propertyNode )
-        assert.equal( propertyNodeValue.propertyName, 'c' )
-        assert.equal( propertyNodeValue.nodeValue, 3 )
+        assert.equal( propertyName, 'c' )
+        assert.equal( propertyNode.nodeValue, 3 )
       })
 
       it( 'setProperty replaces', () => {
@@ -154,17 +95,17 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
-        const newPropertyNode = JsonTree( 3 )
+        const node = Json( obj )
+        const newPropertyNode = Json( 3 )
 
         node.setProperty( 'b', newPropertyNode )
 
         const propertyNode = node.getProperty( 'b' )
-        const propertyNodeValue = propertyNode.value()
+        const { propertyName } = propertyNode.value
 
         assert( propertyNode )
-        assert.equal( propertyNodeValue.propertyName, 'b' )
-        assert.equal( propertyNodeValue.nodeValue, 3 )
+        assert.equal( propertyName, 'b' )
+        assert.equal( propertyNode.nodeValue, 3 )
       })
 
       it( 'hasProperty', () => {
@@ -173,7 +114,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
 
         assert( node.hasProperty( 'a' ) )
         assert( !node.hasProperty( 'c' ) )
@@ -185,7 +126,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
 
         node.removeProperty( 'a' )
 
@@ -199,7 +140,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
 
         node.renameProperty( 'b', 'c' )
 
@@ -213,7 +154,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
         const keys = node.keys()
 
         assert.deepEqual( keys, [ 'a', 'b' ] )
@@ -225,7 +166,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
         const values = node.values()
 
         assert.deepEqual( values, [ 1, 2 ] )
@@ -239,7 +180,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
         const property = node.getProperty( 'a' )
         const slug = property.slug()
 
@@ -249,9 +190,8 @@ describe( 'tree/json converter', () => {
       it( 'array slug', () => {
         const obj = [ 'a', 'b', 'c' ]
 
-        const node = JsonTree( obj )
-        const el = node.firstChild()
-        const slug = el.slug()
+        const node = Json( obj )
+        const slug = node.firstChild.slug()
 
         assert.equal( slug, '0' )
       })
@@ -262,7 +202,7 @@ describe( 'tree/json converter', () => {
           b: 2
         }
 
-        const node = JsonTree( obj )
+        const node = Json( obj )
         const property = node.getProperty( 'a' )
         const path = property.getPath()
 
@@ -272,8 +212,8 @@ describe( 'tree/json converter', () => {
       it( 'array path', () => {
         const obj = [ 'a', 'b', 'c' ]
 
-        const node = JsonTree( obj )
-        const el = node.firstChild()
+        const node = Json( obj )
+        const el = node.firstChild
         const path = el.getPath()
 
         assert.equal( path, '/0' )
@@ -293,7 +233,7 @@ describe( 'tree/json converter', () => {
         f: null
       }
 
-      const node = JsonTree( obj )
+      const node = Json( obj )
       const a = node.getProperty( 'a' )
       const b = node.getProperty( 'b' )
       const c = node.getProperty( 'c' )
@@ -347,12 +287,12 @@ describe( 'tree/json converter', () => {
 
   describe( 'handles missing property names', () => {
     it( 'adds property name', () => {
-      const objNode = JsonTree({
+      const objNode = Json({
         a: 1
       })
 
-      objNode.append( JsonTree( 2 ) )
-      objNode.append( JsonTree( 3 ) )
+      objNode.appendChild( Json( 2 ) )
+      objNode.appendChild( Json( 3 ) )
 
       const obj = objNode.toJson()
 

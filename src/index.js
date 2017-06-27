@@ -1,12 +1,8 @@
 'use strict'
 
-const is = require( '@mojule/is' )
-const TreeFactory = require( '@mojule/tree' ).Factory
-const FactoryFactory = require( '@mojule/tree' ).FactoryFactory
-const defaultPlugins = require( './plugins' )
-const Factory = FactoryFactory( TreeFactory, defaultPlugins )
-const JsonTree = Factory()
+const Tree = require( '@mojule/tree' )
+const plugins = require( './plugins' )
 
-Object.assign( JsonTree, { Factory } )
+const Json = Tree.Factory( plugins )
 
-module.exports = JsonTree
+module.exports = Json
