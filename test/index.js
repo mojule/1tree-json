@@ -25,6 +25,12 @@ describe( 'tree/json converter', () => {
       assert.throws( () =>
         Json( { nodeName: 'nope' } )
       )
+
+      const objNode = Json( { a: 'a', b: 'b' } )
+
+      objNode.value.nodeName = 'nope'
+
+      assert.throws( () => objNode.toJson() )
     })
 
     it( 'Bad properties', () => {
@@ -217,6 +223,12 @@ describe( 'tree/json converter', () => {
         const path = el.getPath()
 
         assert.equal( path, '/0' )
+      })
+    })
+
+    describe( 'treeName', () => {
+      it( 'is correct', () => {
+        assert.strictEqual( Json( {} ).treeName, 'json-tree' )
       })
     })
   })

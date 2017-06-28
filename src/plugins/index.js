@@ -9,12 +9,13 @@ const is = require( './api/is' )
 const nodeValue = require( './api/nodeValue' )
 const slug = require( './api/slug' )
 const toJson = require( './api/toJson' )
+const treeName = require( './api/treeName' )
 
 const nodeName = require( './privates/nodeName' )
 
 module.exports = {
   core,
   statics: [ fromJson ],
-  api: [ properties, is, nodeValue, slug, toJson ],
+  api: [ properties, is, nodeValue, slug, toJson, treeName ],
   privates: [ nodeName ]
 }
