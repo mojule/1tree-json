@@ -1,12 +1,12 @@
 'use strict'
 
 const is = require( '@mojule/is' )
-const nodeTypes = require( '../nodeTypes' )
+const nodeNames = require( '../nodeNames' )
 
-const { allTypes } = nodeTypes
+const { allTypes } = nodeNames
 
 const isValue = value =>
-  is.object( value ) && is.string( value.nodeType )
+  is.object( value ) && is.string( value.nodeName )
 
 const core = ({ core, Api }) => {
   const { createState, getState } = core
@@ -22,7 +22,7 @@ const core = ({ core, Api }) => {
 
   core.isState = state =>
     is.object( state ) && isValue( state.value ) &&
-    allTypes.includes( state.value.nodeType )
+    allTypes.includes( state.value.nodeName )
 }
 
 module.exports = core

@@ -21,9 +21,9 @@ describe( 'tree/json converter', () => {
   })
 
   describe( 'Bad data', () => {
-    it( 'Bad nodeType', () => {
+    it( 'Bad nodeName', () => {
       assert.throws( () =>
-        Json( { nodeType: 'nope' } )
+        Json( { nodeName: 'nope' } )
       )
     })
 
@@ -44,7 +44,7 @@ describe( 'tree/json converter', () => {
   describe( 'State handlers', () => {
     it( 'takes a raw node value', () => {
       const value = {
-        nodeType: 'string',
+        nodeName: 'string',
         nodeValue: 'Hello'
       }
 
