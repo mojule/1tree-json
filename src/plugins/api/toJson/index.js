@@ -1,26 +1,21 @@
 'use strict'
 
 const is = require( '@mojule/is' )
-const nodeNames = require( '../nodeNames' )
-
-const { valueTypes } = nodeNames
 
 const unnamedProperty = 'New property '
 
-const toJson = ({ api }) => {
+const toJson = ({ api, Api }) => {
   api.toJson = () => {
-    const { nodeName } = api
-
-    if( nodeName === 'null' )
+    if( api.isNullNode() )
       return null
 
-    if( valueTypes.includes( nodeName ) )
+    if( api.isValueNode() )
       return api.nodeValue
 
-    if( nodeName === 'array' )
+    if( api.isArrayNode() )
       return api.childNodes.toArray().map( child => child.toJson() )
 
-    if( nodeName === 'object' ){
+    if( api.isObjectNode() ){
       const children = api.childNodes.toArray()
 
       let unnamedCount = 0

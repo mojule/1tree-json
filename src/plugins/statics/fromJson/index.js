@@ -1,30 +1,37 @@
 'use strict'
 
 const is = require( '@mojule/is' )
-const nodeNames = require( '../nodeNames' )
 
-const { valueTypes } = nodeNames
+const fromJson = ({ statics, core, Api }) => {
+  const {
+    NULL_NODE, STRING_NODE, NUMBER_NODE, BOOLEAN_NODE, ARRAY_NODE, OBJECT_NODE
+  } = statics
 
-const fromJson = ({ statics, Api }) => {
+  const valueTypes = [ STRING_NODE, NUMBER_NODE, BOOLEAN_NODE ]
+
   statics.fromJson = ( data, propertyName ) => {
-    const nodeName = is.of( data )
-    const value = { nodeName }
+    if( is.undefined( data ) )
+      throw Error( 'Argument expected' )
+
+    const name = is.of( data )
+    const nodeType = core.nodeTypes[ name ]
+    const value = { nodeType }
 
     if( !is.undefined( propertyName ) )
       value.propertyName = propertyName
 
-    if( valueTypes.includes( nodeName ) )
+    if( valueTypes.includes( nodeType ) )
       value.nodeValue = data
 
     const node = Api( value )
 
-    if( nodeName === 'array' ){
+    if( nodeType === ARRAY_NODE ){
       data.forEach( item => {
         const childNode = Api.fromJson( item )
 
         node.appendChild( childNode )
       })
-    } else if( nodeName === 'object' ){
+    } else if( nodeType === OBJECT_NODE ){
       const propertyNames = Object.keys( data )
 
       propertyNames.forEach( propertyName => {

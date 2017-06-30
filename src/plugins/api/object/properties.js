@@ -2,8 +2,8 @@
 
 const is = require( '@mojule/is' )
 
-const properties = ({ api }) => {
-  if( api.nodeName !== 'object' ) return
+const properties = ({ api, Api }) => {
+  if( api.nodeType !== Api.OBJECT_NODE ) return
 
   api.getProperty = propertyName =>
     api.childNodes.find( child => child.value.propertyName === propertyName )

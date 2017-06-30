@@ -1,7 +1,7 @@
 'use strict'
 
-const api = ({ api, privates }) => {
-  privates.registerGet({
+const api = ({ api, core }) => {
+  core.registerProperty({
     target: api,
     name: 'treeName',
     get: () => 'json-tree'

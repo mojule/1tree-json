@@ -8,7 +8,7 @@ const slug = ({ api, state }) => {
   api.slug = () => {
     if( is.undefined( state.parentNode ) ) return slug()
 
-    if( api.parentNode.nodeName === 'object' )
+    if( api.parentNode.isObjectNode() )
       return state.value.propertyName
 
     return slug()

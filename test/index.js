@@ -21,14 +21,14 @@ describe( 'tree/json converter', () => {
   })
 
   describe( 'Bad data', () => {
-    it( 'Bad nodeName', () => {
+    it( 'Bad nodeType', () => {
       assert.throws( () =>
-        Json( { nodeName: 'nope' } )
+        Json( { nodeType: 0 } )
       )
 
       const objNode = Json( { a: 'a', b: 'b' } )
 
-      objNode.value.nodeName = 'nope'
+      objNode.value.nodeType = 0
 
       assert.throws( () => objNode.toJson() )
     })
@@ -43,14 +43,16 @@ describe( 'tree/json converter', () => {
     })
 
     it( 'No value', () => {
-      assert.throws( () => Json() )
+      assert.throws( () => {
+        const nope = Json()
+      })
     })
   })
 
   describe( 'State handlers', () => {
     it( 'takes a raw node value', () => {
       const value = {
-        nodeName: 'string',
+        nodeType: Json.STRING_NODE,
         nodeValue: 'Hello'
       }
 
@@ -253,47 +255,47 @@ describe( 'tree/json converter', () => {
       const e = node.getProperty( 'e' )
       const f = node.getProperty( 'f' )
 
-      assert( a.isString() )
-      assert( !a.isObject() )
-      assert( !a.isNumber() )
-      assert( !a.isBoolean() )
-      assert( !a.isArray() )
-      assert( !a.isNull() )
+      assert( a.isStringNode() )
+      assert( !a.isObjectNode() )
+      assert( !a.isNumberNode() )
+      assert( !a.isBooleanNode() )
+      assert( !a.isArrayNode() )
+      assert( !a.isNullNode() )
 
-      assert( !b.isString() )
-      assert( b.isObject() )
-      assert( !b.isNumber() )
-      assert( !b.isBoolean() )
-      assert( !b.isArray() )
-      assert( !b.isNull() )
+      assert( !b.isStringNode() )
+      assert( b.isObjectNode() )
+      assert( !b.isNumberNode() )
+      assert( !b.isBooleanNode() )
+      assert( !b.isArrayNode() )
+      assert( !b.isNullNode() )
 
-      assert( !c.isString() )
-      assert( !c.isObject() )
-      assert( c.isNumber() )
-      assert( !c.isBoolean() )
-      assert( !c.isArray() )
-      assert( !c.isNull() )
+      assert( !c.isStringNode() )
+      assert( !c.isObjectNode() )
+      assert( c.isNumberNode() )
+      assert( !c.isBooleanNode() )
+      assert( !c.isArrayNode() )
+      assert( !c.isNullNode() )
 
-      assert( !d.isString() )
-      assert( !d.isObject() )
-      assert( !d.isNumber() )
-      assert( d.isBoolean() )
-      assert( !d.isArray() )
-      assert( !d.isNull() )
+      assert( !d.isStringNode() )
+      assert( !d.isObjectNode() )
+      assert( !d.isNumberNode() )
+      assert( d.isBooleanNode() )
+      assert( !d.isArrayNode() )
+      assert( !d.isNullNode() )
 
-      assert( !e.isString() )
-      assert( !e.isObject() )
-      assert( !e.isNumber() )
-      assert( !e.isBoolean() )
-      assert( e.isArray() )
-      assert( !e.isNull() )
+      assert( !e.isStringNode() )
+      assert( !e.isObjectNode() )
+      assert( !e.isNumberNode() )
+      assert( !e.isBooleanNode() )
+      assert( e.isArrayNode() )
+      assert( !e.isNullNode() )
 
-      assert( !f.isString() )
-      assert( !f.isObject() )
-      assert( !f.isNumber() )
-      assert( !f.isBoolean() )
-      assert( !f.isArray() )
-      assert( f.isNull() )
+      assert( !f.isStringNode() )
+      assert( !f.isObjectNode() )
+      assert( !f.isNumberNode() )
+      assert( !f.isBooleanNode() )
+      assert( !f.isArrayNode() )
+      assert( f.isNullNode() )
     })
   })
 
@@ -313,6 +315,96 @@ describe( 'tree/json converter', () => {
         'New property 0': 2,
         'New property 1': 3
       })
+    })
+  })
+
+  it( 'is empty', () => {
+    const str = Json.createString( 'b', 'a' )
+    const num = Json.createNumber( 1, 'b' )
+    const bool = Json.createBoolean( true, 'c' )
+    const nul = Json.createNull( 'd' )
+    const arr = Json.createArray( 'e' )
+    const obj = Json.createObject( 'f' )
+
+    assert( str.isEmpty() )
+    assert( num.isEmpty() )
+    assert( bool.isEmpty() )
+    assert( nul.isEmpty() )
+    assert( !arr.isEmpty() )
+    assert( !obj.isEmpty() )
+  })
+
+  describe( 'Static create methods', () => {
+    it( 'creates a string', () => {
+      const node = Json.createString( 'abc' )
+
+      assert( node.isStringNode() )
+      assert.strictEqual( node.nodeValue, 'abc' )
+    })
+
+    it( 'bad string', () => {
+      assert.throws( () => Json.createString( 123 ) )
+    })
+
+    it( 'creates a number', () => {
+      const node = Json.createNumber( 123 )
+
+      assert( node.isNumberNode() )
+      assert.strictEqual( node.nodeValue, 123 )
+    })
+
+    it( 'bad number', () => {
+      assert.throws( () => Json.createNumber( 'abc' ) )
+    })
+
+    it( 'creates a boolean', () => {
+      const node = Json.createBoolean( true )
+
+      assert( node.isBooleanNode() )
+      assert.strictEqual( node.nodeValue, true )
+    })
+
+    it( 'bad boolean', () => {
+      assert.throws( () => Json.createBoolean( null ) )
+    })
+
+    it( 'creates an object', () => {
+      const node = Json.createObject()
+
+      assert( node.isObjectNode() )
+      assert.deepEqual( node.toJson(), {} )
+    })
+
+    it( 'creates an array', () => {
+      const node = Json.createArray()
+
+      assert( node.isArrayNode() )
+      assert.deepEqual( node.toJson(), [] )
+    })
+
+    it( 'creates property names', () => {
+      const parent = Json.createObject()
+
+      const str = Json.createString( 'b', 'a' )
+      const num = Json.createNumber( 1, 'b' )
+      const bool = Json.createBoolean( true, 'c' )
+      const nul = Json.createNull( 'd' )
+      const arr = Json.createArray( 'e' )
+      const obj = Json.createObject( 'f' )
+
+      parent.append( str, num, bool, nul, arr, obj )
+
+      assert.deepEqual(
+        parent.toJson(),
+        {
+          a: 'b',
+          b: 1,
+          c: true,
+          d: null,
+          e: [],
+          f: {}
+        }
+      )
     })
   })
 })
