@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@mojule/is": "^0.1.2",
-    "@mojule/tree": "github:mojule/tree#1.0.0",
+    "@mojule/tree": "^1.0.0",
     "@mojule/utils": "^0.1.13"
   }
 }

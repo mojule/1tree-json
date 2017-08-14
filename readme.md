@@ -1,5 +1,9 @@
 # json-tree
 
+**Important** - this documentation describes a previous version and needs to be
+updated - however, the tests are up to date and serve as examples until this has
+been done
+
 Use [tree](https://github.com/mojule/tree) API over JSON-compatible objects
 
 ## Install
